@@ -15,16 +15,16 @@
 
 
 
-<meta name="description" content="在公司的项目中，要求我把医疗人员传过来的excel表格资料通过系统解析成对象并且存到数据库，在学习了相关资料后，就开始了编写，代码如下： 12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758public List&amp;lt;A&amp;gt; rea">
+<meta name="description" content="在前面，虽然可以从excel读取转化为对象，但是如果一个类的字段太多，每次都要通过set来设值，很浪费时间， 还有许多类似的类如果都要导入的话，为每个类设计一个方法显得太愚蠢，所以决定设计一个工具类，能够自动转换为想要的，通过反射和泛型来实现： 12345678910111213141516171819202122232425262728293031323334353637383940414243">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Java读取Excel表格到对象">
-<meta property="og:url" content="http://yoursite.com/2018/02/26/111/index.html">
+<meta property="og:title" content="Java读取Excel表格到对象之优化">
+<meta property="og:url" content="http://yoursite.com/2018/02/26/Java读取Excel表格到对象之优化/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="在公司的项目中，要求我把医疗人员传过来的excel表格资料通过系统解析成对象并且存到数据库，在学习了相关资料后，就开始了编写，代码如下： 12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758public List&amp;lt;A&amp;gt; rea">
-<meta property="og:updated_time" content="2018-02-26T09:09:50.603Z">
+<meta property="og:description" content="在前面，虽然可以从excel读取转化为对象，但是如果一个类的字段太多，每次都要通过set来设值，很浪费时间， 还有许多类似的类如果都要导入的话，为每个类设计一个方法显得太愚蠢，所以决定设计一个工具类，能够自动转换为想要的，通过反射和泛型来实现： 12345678910111213141516171819202122232425262728293031323334353637383940414243">
+<meta property="og:updated_time" content="2018-02-26T09:14:24.764Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Java读取Excel表格到对象">
-<meta name="twitter:description" content="在公司的项目中，要求我把医疗人员传过来的excel表格资料通过系统解析成对象并且存到数据库，在学习了相关资料后，就开始了编写，代码如下： 12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758public List&amp;lt;A&amp;gt; rea">
+<meta name="twitter:title" content="Java读取Excel表格到对象之优化">
+<meta name="twitter:description" content="在前面，虽然可以从excel读取转化为对象，但是如果一个类的字段太多，每次都要通过set来设值，很浪费时间， 还有许多类似的类如果都要导入的话，为每个类设计一个方法显得太愚蠢，所以决定设计一个工具类，能够自动转换为想要的，通过反射和泛型来实现： 12345678910111213141516171819202122232425262728293031323334353637383940414243">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -56,7 +56,7 @@
 <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
 
 
-<title>Java读取Excel表格到对象 | Hexo</title>
+<title>Java读取Excel表格到对象之优化 | Hexo</title>
 
 <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
@@ -256,11 +256,11 @@
     </div>
     <link class="menu-list" tags="Tags" friends="Friends" about="About Me"/>
 </nav>
-      <div class="body-wrap"><article id="post-111" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="post-Java读取Excel表格到对象之优化" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2018/02/26/111/" class="article-date">
-      <time datetime="2018-02-26T06:01:41.000Z" itemprop="datePublished">2018-02-26</time>
+      <a href="/2018/02/26/Java读取Excel表格到对象之优化/" class="article-date">
+      <time datetime="2018-02-26T09:13:40.000Z" itemprop="datePublished">2018-02-26</time>
 </a>
 
 
@@ -275,7 +275,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      Java读取Excel表格到对象
+      Java读取Excel表格到对象之优化
     </h1>
   
 
@@ -292,9 +292,9 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>在公司的项目中，要求我把医疗人员传过来的excel表格资料通过系统解析成对象并且存到数据库，在学习了相关资料后，就开始了编写，代码如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> List&lt;A&gt; <span class="title">readExcel</span><span class="params">(File file)</span> <span class="keyword">throws</span> Exception </span>&#123;  </span><br><span class="line">        <span class="comment">//获取文件名字  </span></span><br><span class="line">        String fileName = file.getName();  </span><br><span class="line">        <span class="comment">//获取文件类型  </span></span><br><span class="line">        String fileType = fileName.substring(fileName.lastIndexOf(<span class="string">"."</span>) + <span class="number">1</span>);  </span><br><span class="line">        System.out.println(<span class="string">" **** fileType:"</span> + fileType);  </span><br><span class="line">        <span class="comment">//获取输入流  </span></span><br><span class="line">        InputStream stream = <span class="keyword">new</span> FileInputStream(file);  </span><br><span class="line">        <span class="comment">//获取工作薄  </span></span><br><span class="line">        Workbook xssfWorkbook = <span class="keyword">null</span>;  </span><br><span class="line">        <span class="keyword">if</span> (fileType.equals(<span class="string">"xls"</span>)) &#123;  </span><br><span class="line">            xssfWorkbook = <span class="keyword">new</span> HSSFWorkbook(stream);  </span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (fileType.equals(<span class="string">"xlsx"</span>)) &#123;  </span><br><span class="line">            xssfWorkbook = <span class="keyword">new</span> XSSFWorkbook(stream);  </span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;  </span><br><span class="line">            System.out.println(<span class="string">"您输入的excel格式不正确"</span>);  </span><br><span class="line">        &#125;  </span><br><span class="line">        A a = <span class="keyword">null</span>;  </span><br><span class="line">        List&lt;A&gt; aList = <span class="keyword">new</span> ArrayList&lt;A&gt;();  </span><br><span class="line">        <span class="comment">// Read the Sheet  </span></span><br><span class="line">        Sheet Sheet = xssfWorkbook.getSheetAt(<span class="number">0</span>);  </span><br><span class="line">        <span class="comment">// Read the Row 从0开始  </span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> rowNum = <span class="number">0</span>; rowNum &lt;= Sheet.getLastRowNum(); rowNum++) &#123;  </span><br><span class="line">            Row Row = Sheet.getRow(rowNum);  </span><br><span class="line">            <span class="keyword">if</span> (Row != <span class="keyword">null</span>) &#123;  </span><br><span class="line">                <span class="comment">//判断这行记录是否存在  </span></span><br><span class="line">                <span class="keyword">if</span> (Row.getLastCellNum() &lt; <span class="number">1</span> || <span class="string">""</span>.equals(getValue(Row.getCell(<span class="number">1</span>)))) &#123;  </span><br><span class="line">                    <span class="keyword">continue</span>;  </span><br><span class="line">                &#125;  </span><br><span class="line">                <span class="comment">//获取每一行  </span></span><br><span class="line">                a = <span class="keyword">new</span> A();  </span><br><span class="line">                a.setId(getValue(Row.getCell(<span class="number">0</span>)));  </span><br><span class="line">                a.setName(getValue(Row.getCell(<span class="number">1</span>)));  </span><br><span class="line">                aList.add(a);  </span><br><span class="line">            &#125;  </span><br><span class="line">        &#125;  </span><br><span class="line">        <span class="keyword">return</span> aList;  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">private</span> String <span class="title">getValue</span><span class="params">(Cell cell)</span></span>&#123;  </span><br><span class="line">        <span class="keyword">int</span> type = CellFormat.ultimateType(cell);  </span><br><span class="line">        <span class="keyword">if</span>(type == Cell.CELL_TYPE_BOOLEAN)  </span><br><span class="line">        &#123;  </span><br><span class="line">            <span class="keyword">return</span> String.valueOf(cell.getBooleanCellValue());  </span><br><span class="line">        &#125;  </span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span>(type == Cell.CELL_TYPE_NUMERIC)  </span><br><span class="line">        &#123;  </span><br><span class="line">            <span class="keyword">return</span> String.valueOf(cell.getNumericCellValue());  </span><br><span class="line">        &#125;  </span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span>(type == Cell.CELL_TYPE_BLANK)  </span><br><span class="line">        &#123;  </span><br><span class="line">            <span class="keyword">return</span> <span class="string">""</span>;  </span><br><span class="line">        &#125;  </span><br><span class="line">        <span class="keyword">else</span>  </span><br><span class="line">        &#123;  </span><br><span class="line">            <span class="keyword">return</span> cell.getStringCellValue().trim();  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-<p>这样就能通用的通过读取得到List对象再存入数据库。</p>
+        <p>在前面，虽然可以从excel读取转化为对象，但是如果一个类的字段太多，每次都要通过set来设值，很浪费时间， 还有许多类似的类如果都要导入的话，为每个类设计一个方法显得太愚蠢，所以决定设计一个工具类，能够自动转换为想要的，通过反射和泛型来实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> &lt;T&gt; <span class="function">List&lt;T&gt; <span class="title">readExcel</span><span class="params">(File file, Class&lt;T&gt; c)</span> <span class="keyword">throws</span> Exception </span>&#123;  </span><br><span class="line">        <span class="comment">//获取文件名字  </span></span><br><span class="line">        String fileName = file.getName();  </span><br><span class="line">        <span class="comment">//获取文件类型  </span></span><br><span class="line">        String fileType = fileName.substring(fileName.lastIndexOf(<span class="string">"."</span>) + <span class="number">1</span>);  </span><br><span class="line">        System.out.println(<span class="string">" **** fileType:"</span> + fileType);  </span><br><span class="line">        <span class="comment">//获取输入流  </span></span><br><span class="line">        InputStream stream = <span class="keyword">new</span> FileInputStream(file);  </span><br><span class="line">        <span class="comment">//获取工作薄  </span></span><br><span class="line">        Workbook xssfWorkbook = <span class="keyword">null</span>;  </span><br><span class="line">        <span class="keyword">if</span> (fileType.equals(<span class="string">"xls"</span>)) &#123;  </span><br><span class="line">            xssfWorkbook = <span class="keyword">new</span> HSSFWorkbook(stream);  </span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (fileType.equals(<span class="string">"xlsx"</span>)) &#123;  </span><br><span class="line">            xssfWorkbook = <span class="keyword">new</span> XSSFWorkbook(stream);  </span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;  </span><br><span class="line">            System.out.println(<span class="string">"您输入的excel格式不正确"</span>);  </span><br><span class="line">        &#125;  </span><br><span class="line">        List&lt;T&gt; list = <span class="keyword">new</span> ArrayList&lt;T&gt;();  </span><br><span class="line">        <span class="comment">// Read the Sheet  </span></span><br><span class="line">        Sheet Sheet = xssfWorkbook.getSheetAt(<span class="number">0</span>);  </span><br><span class="line">        <span class="comment">// Read the Row 从0开始  </span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> rowNum = <span class="number">0</span>; rowNum &lt;= Sheet.getLastRowNum(); rowNum++) &#123;  </span><br><span class="line">            Row Row = Sheet.getRow(rowNum);  </span><br><span class="line">            <span class="keyword">if</span> (Row != <span class="keyword">null</span>) &#123;  </span><br><span class="line">                <span class="comment">//判断这行记录是否存在  </span></span><br><span class="line">                <span class="keyword">if</span> (Row.getLastCellNum() &lt; <span class="number">1</span> || <span class="string">""</span>.equals(getValue(Row.getCell(<span class="number">1</span>)))) &#123;  </span><br><span class="line">                    <span class="keyword">continue</span>;  </span><br><span class="line">                &#125;  </span><br><span class="line">                <span class="comment">//获取每一行  </span></span><br><span class="line">                <span class="comment">//反射获取实例  </span></span><br><span class="line">                T t = c.newInstance();  </span><br><span class="line">                <span class="comment">//获取私有变量  </span></span><br><span class="line">                Field[] fields = c.getDeclaredFields();  </span><br><span class="line">                <span class="comment">//循环赋值  </span></span><br><span class="line">                <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;fields.length-<span class="number">1</span>;i++)&#123;  </span><br><span class="line">                    fields[i].setAccessible(<span class="keyword">true</span>);  </span><br><span class="line">                    fields[i].set(t, getValue(Row.getCell(i)));  </span><br><span class="line">                &#125;  </span><br><span class="line">                list.add(t);  </span><br><span class="line">            &#125;  </span><br><span class="line">        &#125;  </span><br><span class="line">        <span class="keyword">return</span> list;  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">private</span> String <span class="title">getValue</span><span class="params">(Cell cell)</span></span>&#123;  </span><br><span class="line">        <span class="keyword">int</span> type = CellFormat.ultimateType(cell);  </span><br><span class="line">        <span class="keyword">if</span>(type == Cell.CELL_TYPE_BOOLEAN)  </span><br><span class="line">        &#123;  </span><br><span class="line">            <span class="keyword">return</span> String.valueOf(cell.getBooleanCellValue());  </span><br><span class="line">        &#125;  </span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span>(type == Cell.CELL_TYPE_NUMERIC)  </span><br><span class="line">        &#123;  </span><br><span class="line">            <span class="keyword">return</span> String.valueOf(cell.getNumericCellValue());  </span><br><span class="line">        &#125;  </span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span>(type == Cell.CELL_TYPE_BLANK)  </span><br><span class="line">        &#123;  </span><br><span class="line">            <span class="keyword">return</span> <span class="string">""</span>;  </span><br><span class="line">        &#125;  </span><br><span class="line">        <span class="keyword">else</span>  </span><br><span class="line">        &#123;  </span><br><span class="line">            <span class="keyword">return</span> cell.getStringCellValue().trim();  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>注意！在这里面默认的为表格的第一列对应类的第一个变量，如果对应相隔几个位置或者类有继承的变量，可以通过修改循环中的i和i与表格列的差来使用。</p>
 
       
     </div>
@@ -303,13 +303,13 @@
   
     
     <div class="copyright">
-        <p><span>Title:</span><a href="/2018/02/26/111/">Java读取Excel表格到对象</a></p>
+        <p><span>Title:</span><a href="/2018/02/26/Java读取Excel表格到对象之优化/">Java读取Excel表格到对象之优化</a></p>
         <p><span>Author:</span><a href="/" title="Back to Homepage">John Doe</a></p>
-        <p><span>Created:</span>2018-02-26, 14:01:41</p>
-        <p><span>Updated:</span>2018-02-26, 17:09:50</p>
+        <p><span>Created:</span>2018-02-26, 17:13:40</p>
+        <p><span>Updated:</span>2018-02-26, 17:14:24</p>
         <p>
-            <span>Full URL:</span><a class="post-url" href="/2018/02/26/111/" title="Java读取Excel表格到对象">http://yoursite.com/2018/02/26/111/</a>
-            <span class="copy-path" data-clipboard-text="From http://yoursite.com/2018/02/26/111/　　By John Doe" title="Copy Article&#39;s Link &amp; Author"><i class="fa fa-clipboard"></i></span>
+            <span>Full URL:</span><a class="post-url" href="/2018/02/26/Java读取Excel表格到对象之优化/" title="Java读取Excel表格到对象之优化">http://yoursite.com/2018/02/26/Java读取Excel表格到对象之优化/</a>
+            <span class="copy-path" data-clipboard-text="From http://yoursite.com/2018/02/26/Java读取Excel表格到对象之优化/　　By John Doe" title="Copy Article&#39;s Link &amp; Author"><i class="fa fa-clipboard"></i></span>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
         </p>
         <p>
@@ -321,16 +321,10 @@
 
     <nav id="article-nav">
         
-            <div id="article-nav-newer" class="article-nav-title">
-                <a href="/2018/02/26/Java读取Excel表格到对象之优化/">
-                    Java读取Excel表格到对象之优化
-                </a>
-            </div>
-        
         
             <div id="article-nav-older" class="article-nav-title">
-                <a href="/2018/02/26/hello-world/">
-                    Hello World
+                <a href="/2018/02/26/111/">
+                    Java读取Excel表格到对象
                 </a>
             </div>
         
@@ -378,7 +372,7 @@
         </div>
         <script>
             window._bd_share_config={
-                "common":{"bdSnsKey":{},"bdText":"Java读取Excel表格到对象　| Hexo　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+                "common":{"bdSnsKey":{},"bdText":"Java读取Excel表格到对象之优化　| Hexo　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
         </script>
     
 
@@ -398,15 +392,13 @@
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="/2018/02/26/Java读取Excel表格到对象之优化/" title="Pre: Java读取Excel表格到对象之优化">
-                <i class="fa fa-angle-left"></i>
-            </a>
+            <a href="/" title="Back to Homepage"><i class="fa fa-home"></i></a>
         
 
         <a title="Mini Archives"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
 
         
-            <a href="/2018/02/26/hello-world/" title="Next: Hello World">
+            <a href="/2018/02/26/111/" title="Next: Java读取Excel表格到对象">
                 <i class="fa fa-angle-right"></i>
             </a>
         
