@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="havetogg" />
+
+
+
+<meta name="description" content="问题背景前端系统反馈调用BOH系统几个接口调用耗时较长，希望能定位问题原因。涉及的接口流程较长，代码比较复杂，定位问题首先需要找到在流程中哪些地方慢，需要在流程节点打印慢日志，定位问题。">
+<meta name="keywords" content="Spring,AOP">
+<meta property="og:type" content="article">
+<meta property="og:title" content="对于Spring AOP中注解的运用">
+<meta property="og:url" content="blog.liangwenxing.top/2018/02/27/对于Spring-AOP中注解的运用/index.html">
+<meta property="og:site_name" content="havetogg&#39;s blog">
+<meta property="og:description" content="问题背景前端系统反馈调用BOH系统几个接口调用耗时较长，希望能定位问题原因。涉及的接口流程较长，代码比较复杂，定位问题首先需要找到在流程中哪些地方慢，需要在流程节点打印慢日志，定位问题。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-02-27T05:47:12.344Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="对于Spring AOP中注解的运用">
+<meta name="twitter:description" content="问题背景前端系统反馈调用BOH系统几个接口调用耗时较长，希望能定位问题原因。涉及的接口流程较长，代码比较复杂，定位问题首先需要找到在流程中哪些地方慢，需要在流程节点打印慢日志，定位问题。">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="havetogg&#39;s blog" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>对于Spring AOP中注解的运用 | havetogg&#39;s blog</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: undefined
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">havetogg</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">没事写一写，还是挺有趣的</p>
+        
+
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:278496708@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="/havetogg" title="GitHub"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AOP/">AOP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/excel/">excel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/反射/">反射</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">专注于前端</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">havetogg</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">havetogg</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">没事写一写，还是挺有趣的</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:278496708@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="/havetogg" title="GitHub"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-对于Spring-AOP中注解的运用" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/02/27/对于Spring-AOP中注解的运用/" class="article-date">
+      <time datetime="2018-02-27T03:25:21.000Z" itemprop="datePublished">2018-02-27</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      对于Spring AOP中注解的运用
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/AOP/">AOP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Spring/">Spring</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h3 id="问题背景"><a href="#问题背景" class="headerlink" title="问题背景"></a>问题背景</h3><p>前端系统反馈调用BOH系统几个接口调用耗时较长，希望能定位问题原因。<br>涉及的接口流程较长，代码比较复杂，定位问题首先需要找到在流程中哪些地方慢，需要在流程节点打印慢日志，定位问题。</p>
+<p><excerpt in="" index="" |="" 首页摘要=""><br><a id="more"></a></excerpt></p>
+<p><the rest="" of="" contents="" |="" 余下全文=""></the></p>
+<h3 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h3><p>   方案1：在流程节点的首尾增加beginTime及endTime的打印，然后输出耗时。<br>   优点：简单直接，灵活性高<br>   缺点：涉及改动点较多，有代码侵入性<br>   方案2：采用SpringAOP实现，它可以针对目标方法before、after、arround等进行编程。耗时日志需要记录方法开始执行及结束的时间，用来计算耗时，所以采用arround的方式<br>   优点：通用性高，改动点少<br>   缺点：灵活性及定制化没有方案1好<br>   考虑到改动点及通用性，我们使用方案2实现。（在不同情况下选取不同方案，方案2无法完全代替方案1，在一些特殊场景需定制化的进行处理，只能使用方案1）</p>
+<h3 id="技术实现V1-0"><a href="#技术实现V1-0" class="headerlink" title="技术实现V1.0"></a>技术实现V1.0</h3><p>   1.考虑将影响范围控制在一个可控范围内，这里暂时没有使用类似 execution(public <em> </em>(..)模糊匹配的方式，使用注解的方式标识需要记录日志的方法。自定义注解，标识需要打印日志的方法<br>   <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Target</span>(ElementType.METHOD)</span><br><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> CostTimeAnno &#123;    </span><br><span class="line"> <span class="function">String <span class="title">desc</span><span class="params">()</span> <span class="keyword">default</span> "记录方法执行时间"</span>;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>   2.定义日志记录处理类，使用AspectJ的方式。<br>实现功能：针对标识特定注解的方法，如果耗时超过指定时间，记录方法声明、入参及耗时<br>   <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CostTimeAspect</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Logger LOG = LoggerFactory.getLogger(CostTimeAspect.class);</span><br><span class="line"> </span><br><span class="line">    <span class="meta">@Around</span>(<span class="string">"@annotation(com.tuniu.ngsp.boh.core.util.CostTimeAnno)"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">logCostTime</span><span class="params">(ProceedingJoinPoint pjp)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">        <span class="keyword">long</span> beginTime = System.currentTimeMillis();</span><br><span class="line">        <span class="comment">// 目标方法执行</span></span><br><span class="line">        Object result = pjp.proceed();</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">long</span> endTime = System.currentTimeMillis();         </span><br><span class="line">        <span class="keyword">long</span> costTime = endTime - beginTime;</span><br><span class="line"> </span><br><span class="line">        <span class="comment">// 如果执行时间大于指定时间 记录日志</span></span><br><span class="line">        Object args;</span><br><span class="line">        <span class="keyword">if</span> (costTime &gt; SystemParamInit.delayTimeLog) &#123;</span><br><span class="line">            String method = pjp.getSignature().toString();</span><br><span class="line">            StringBuilder sb = <span class="keyword">new</span> StringBuilder();</span><br><span class="line">            <span class="comment">// 遍历方法入参，记录参数值</span></span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">null</span> != pjp.getArgs() &amp;&amp; pjp.getArgs().length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;pjp.getArgs().length;i++) &#123;</span><br><span class="line">                    sb.append(<span class="string">" param"</span>).append(String.valueOf(i+<span class="number">1</span>)).append(<span class="string">" is "</span>);</span><br><span class="line">                    args = pjp.getArgs()[i];                   </span><br><span class="line">                    <span class="keyword">if</span> (<span class="keyword">null</span> != args) &#123;</span><br><span class="line">                        sb.append(JsonUtil.toStringNotIncludeNull(args));</span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                        sb.append(<span class="string">"null"</span>);</span><br><span class="line">                    &#125;                  </span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 打印慢日志 包括 耗时、方法声明、入参</span></span><br><span class="line">            LOG.error(<span class="string">"methodDelay costTime#&#123;&#125; method:&#123;&#125; args:&#123;&#125;"</span>,costTime,method,sb.toString());</span><br><span class="line">    &#125;</span><br><span class="line">     <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>   另外，需在spring配置文件增加如下声明<br>   <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;aop:aspectj-autoproxy/&gt;</span><br></pre></td></tr></table></figure></p>
+<p>   3.对需要记录日志的方法增加注解声明<br>   <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@CostTimeAnno</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> List&lt;CombinedCityRes&gt; <span class="title">queryCombinedCityRes</span><span class="params">(<span class="keyword">int</span> productId)</span> </span>&#123;</span><br><span class="line">  	<span class="keyword">return</span> sst.selectList(<span class="string">"ngbossPro.combinedCityRes.queryByProductId"</span>, productId);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="技术实现V1-1"><a href="#技术实现V1-1" class="headerlink" title="技术实现V1.1"></a>技术实现V1.1</h3><p>   实际使用过程中发现，一个流程中有可能有多个耗时较长逻辑，那么这些处理逻辑是在一次请求中同时产生的慢处理还是单独出现的慢处理，无法区分。所以，最好能够给日志增加标识，一次请求中的逻辑日志打印室同一个标识。<br>   解决办法，当处理一个web请求，在不开启多线程的情况下，所有逻辑均走的是同一个线程，所以在日志打印处增加当前线程ID打印即可<br>   <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 打印Thread.currentThread().getId()</span></span><br><span class="line">LOG.error(<span class="string">"methodDelay#&#123;&#125; costTime#&#123;&#125; method:&#123;&#125; args:&#123;&#125;"</span>,Thread.currentThread().getId(),costTime,method,sb.toString());</span><br></pre></td></tr></table></figure></p>
+<h3 id="技术实现V1-2"><a href="#技术实现V1-2" class="headerlink" title="技术实现V1.2"></a>技术实现V1.2</h3><p>   如上V1.1解决办法，存在一个问题：web服务器处理请求是线程复用的，因此线程ID可能会出现多次，处理完一个请求后，下一个请求还是这个线程ID，如何能够做到全局唯一性？<br>   JAVA中ThreadLocal为每个线程维护自己的变量，相互之间不受影响，Logback中的MDC类中维护了基于MAP的InheritableThreadLocal，可以通过MDC的方法来实现标识全局唯一性。</p>
+<p>   web接口请求一般入口在Control类中，我们在Control类对应方法中生成logId，并保存下来（使用MDC的put方法），处理完毕后需要调用remove方法，防止内存泄露（也可以定义filter，直接在filter中生成logId）<br>     <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> ResponseVo <span class="title">queryDepartureCityInfoWithPrice</span><span class="params">(@Json ProductDepartureCityWithPriceRequestVo requestVo)</span></span>&#123;     </span><br><span class="line">    <span class="comment">// 生成logId</span></span><br><span class="line">    MDC.put(<span class="string">"logId"</span>,UUID.randomUUID().toString());</span><br><span class="line">    ResponseVo responseVo = route3ProductPriceService.getDepartureCityInfoWithPrice(requestVo);</span><br><span class="line">    <span class="comment">// 移除logID 防止出现内存泄露</span></span><br><span class="line">    MDC.remove(<span class="string">"logId"</span>);</span><br><span class="line">    <span class="keyword">return</span> responseVo;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>   在CostTimeAspect中直接get到logId打印日志即可<br>   <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使用MDC.get("logId")获取生成的唯一标示id</span></span><br><span class="line">LOG.error(<span class="string">"methodDelay#&#123;&#125; costTime#&#123;&#125; method:&#123;&#125; args:&#123;&#125;"</span>, (<span class="keyword">null</span> == MDC.get(<span class="string">"logId"</span>) ? <span class="string">""</span> : MDC.get(<span class="string">"logId"</span>).toString()),costTime, method,sb.toString());</span><br></pre></td></tr></table></figure></p>
+<h3 id="技术发散"><a href="#技术发散" class="headerlink" title="技术发散"></a>技术发散</h3><pre><code>知道了MDC可以保存每个线程的变量，那么可以做扩展，例如一些接口处理逻辑比较复杂，技术支持需要从头跟代码慢慢的找到问题，那么可以考虑请求中增加参数debugFlag，如果传入debugFlag，那么每个业务逻辑中均记录一些关键信  息并放入MDC中，最终返回接口，这样形成了一条业务逻辑处理轨迹，方便定位问题，同时，由于它不打印日志，对性能影响较小。
+</code></pre>
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2018/02/27/对于Spring-AOP中注解的运用/">对于Spring AOP中注解的运用</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">havetogg</a></p>
+        <p><span>发布时间:</span>2018-02-27, 11:25:21</p>
+        <p><span>最后更新:</span>2018-02-27, 13:47:12</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2018/02/27/对于Spring-AOP中注解的运用/" title="对于Spring AOP中注解的运用">blog.liangwenxing.top/2018/02/27/对于Spring-AOP中注解的运用/</a>
+            <span class="copy-path" data-clipboard-text="原文: blog.liangwenxing.top/2018/02/27/对于Spring-AOP中注解的运用/　　作者: havetogg" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2018/02/26/Java读取Excel表格到对象之优化/">
+                    Java读取Excel表格到对象之优化
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#问题背景"><span class="toc-number">1.</span> <span class="toc-text">问题背景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#解决方案"><span class="toc-number">2.</span> <span class="toc-text">解决方案</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#技术实现V1-0"><span class="toc-number">3.</span> <span class="toc-text">技术实现V1.0</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#技术实现V1-1"><span class="toc-number">4.</span> <span class="toc-text">技术实现V1.1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#技术实现V1-2"><span class="toc-number">5.</span> <span class="toc-text">技术实现V1.2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#技术发散"><span class="toc-number">6.</span> <span class="toc-text">技术发散</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"对于Spring AOP中注解的运用　| havetogg's blog　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2018/02/26/Java读取Excel表格到对象之优化/" title="下一篇: Java读取Excel表格到对象之优化">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/02/27/对于Spring-AOP中注解的运用/">对于Spring AOP中注解的运用</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/26/Java读取Excel表格到对象之优化/">Java读取Excel表格到对象之优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/26/Java读取Excel表格到对象/">Java读取Excel表格到对象</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/26/hello-world/">Hello World</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2016-2018 havetogg
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>
